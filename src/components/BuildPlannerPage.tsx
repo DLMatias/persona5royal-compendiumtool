@@ -303,29 +303,27 @@ function BuildPlannerPage() {
             )}
           </div>
 
-          <h4>Selected Skills</h4>
+          {wantedSkills.length > 0 && (
+            <div className="selected-build-list">
+              <h4>Selected Skills</h4>
 
-          {wantedSkills.length > 0 ? (
-            <div className="selected-chip-list">
               {wantedSkills.map((skillName) => (
                 <button
                   key={skillName}
                   type="button"
                   onClick={() => removeWantedSkill(skillName)}
-                  className="selected-chip"
+                  className="skill-chip skill-chip-button"
                 >
                   {skillName} ×
                 </button>
               ))}
             </div>
-          ) : (
-            <p>No wanted skills selected.</p>
           )}
         </div>
 
         <div className="selector-panel">
           <h3>Wanted Trait</h3>
-          <p>Selected: {wantedTrait || "None"}</p>
+          <p>Selected Trait: {wantedTrait || "None"}</p>
 
           <input
             className="form-control"
@@ -342,7 +340,7 @@ function BuildPlannerPage() {
 
           <div className="scrollable-select-list">
             {targetPersona ? (
-              traitSearchResults.map(([traitName]) => (
+              traitSearchResults.map(([traitName, trait]) => (
                 <button
                   key={traitName}
                   type="button"
@@ -353,14 +351,9 @@ function BuildPlannerPage() {
                       : "scrollable-select-item"
                   }
                 >
-                  <span className="select-item-main">
-                    <img
-                      src={`${import.meta.env.BASE_URL}icons/trait.png`}
-                      alt="Trait"
-                      title="Trait"
-                      className="skill-type-icon"
-                    />
-                    {traitName}
+                  <span>{traitName}</span>
+                  <span className="select-item-meta">
+                    {trait.description}
                   </span>
                 </button>
               ))
@@ -427,10 +420,20 @@ function BuildPlannerPage() {
                 <div key={stepIndex} className="recipe-card">
                   <h4>Step {stepIndex + 1}</h4>
 
-                  <p>
-                    {step.personaA.name} + {step.personaB.name} ={" "}
-                    {step.result.name}
-                  </p>
+                  {step.isSpecialFusion && step.specialIngredients ? (
+                    <p>
+                      Special Fusion:{" "}
+                      {step.specialIngredients
+                        .map((persona) => persona.name)
+                        .join(" + ")}{" "}
+                      = {step.result.name}
+                    </p>
+                  ) : (
+                    <p>
+                      {step.personaA.name} + {step.personaB.name} ={" "}
+                      {step.result.name}
+                    </p>
+                  )}
 
                   {step.inheritedSkills.length > 0 && (
                     <p>Skills carried: {step.inheritedSkills.join(", ")}</p>
