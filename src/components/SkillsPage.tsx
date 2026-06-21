@@ -1,6 +1,7 @@
-import { useMemo, useState } from "react";
+import { Fragment, useMemo, useState } from "react";
 import skillsData from "../data/skills.json";
 import personasData from "../data/personas.json";
+import { PersonaNameButton } from "./PersonaPopup";
 import type { Persona } from "../types";
 
 type SkillInfo = {
@@ -20,6 +21,15 @@ type SkillsData = {
   [skillName: string]: SkillInfo;
 };
 
+type OwnedPersonas = {
+  [personaName: string]: boolean;
+};
+
+type SkillsPageProps = {
+  ownedPersonas: OwnedPersonas;
+  toggleOwned: (personaName: string) => void;
+};
+
 const skills = skillsData as SkillsData;
 const personas = personasData as Persona[];
 
@@ -29,7 +39,7 @@ function getIconPath(element: string) {
   return `${import.meta.env.BASE_URL}icons/${element.toLowerCase()}.png`;
 }
 
-function SkillsPage() {
+function SkillsPage({ ownedPersonas, toggleOwned }: SkillsPageProps) {
   const [searchText, setSearchText] = useState("");
   const [selectedElement, setSelectedElement] = useState("All");
   const [sortOption, setSortOption] = useState("Name A-Z");
@@ -206,12 +216,33 @@ function SkillsPage() {
 
               <p>{skill.description}</p>
 
-              {skill.uniqueTo && <p>Unique To: {skill.uniqueTo}</p>}
+              {skill.uniqueTo && (
+                <p>
+                  Unique To:{" "}
+                  <PersonaNameButton
+                    personaName={skill.uniqueTo}
+                    ownedPersonas={ownedPersonas}
+                    toggleOwned={toggleOwned}
+                  />
+                </p>
+              )}
               {skill.skillCard && <p>Skill Card: {skill.skillCard}</p>}
               {skill.talk && <p>Negotiation: {skill.talk}</p>}
 
               {skill.fuseFrom.length > 0 && (
-                <p>Skill Card Fusion: {skill.fuseFrom.join(", ")}</p>
+                <p>
+                  Skill Card Fusion:{" "}
+                  {skill.fuseFrom.map((personaName, index) => (
+                    <Fragment key={personaName}>
+                      {index > 0 && ", "}
+                      <PersonaNameButton
+                        personaName={personaName}
+                        ownedPersonas={ownedPersonas}
+                        toggleOwned={toggleOwned}
+                      />
+                    </Fragment>
+                  ))}
+                </p>
               )}
 
               <h4>Learned By</h4>
@@ -220,7 +251,12 @@ function SkillsPage() {
                 {learnedBy.length > 0 ? (
                   learnedBy.slice(0, 12).map((result) => (
                     <p key={`${skillName}-${result.personaName}`}>
-                      {result.personaName} ; Level {result.level}
+                      <PersonaNameButton
+                        personaName={result.personaName}
+                        ownedPersonas={ownedPersonas}
+                        toggleOwned={toggleOwned}
+                      />{" "}
+                      ; Level {result.level}
                     </p>
                   ))
                 ) : (

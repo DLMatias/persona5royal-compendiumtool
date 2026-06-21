@@ -1,6 +1,7 @@
 import { useState } from "react";
 import personas from "../data/personas.json";
 import specialFusions from "../data/specialFusions.json";
+import { PersonaNameButton } from "./PersonaPopup";
 import { getFusionResult } from "../utils/fusionLogic";
 import type { Persona } from "../types";
 
@@ -10,6 +11,7 @@ type OwnedPersonas = {
 
 type ReverseFusionPageProps = {
   ownedPersonas: OwnedPersonas;
+  toggleOwned: (personaName: string) => void;
 };
 
 type FusionRecipe = {
@@ -24,11 +26,15 @@ type SpecialFusions = {
 const typedPersonas = personas as Persona[];
 const typedSpecialFusions = specialFusions as SpecialFusions;
 
-function ReverseFusionPage({ ownedPersonas }: ReverseFusionPageProps) {
+function ReverseFusionPage({
+  ownedPersonas,
+  toggleOwned,
+}: ReverseFusionPageProps) {
   const [targetPersonaName, setTargetPersonaName] = useState(
     typedPersonas[0].name
   );
   const [targetSearchText, setTargetSearchText] = useState("");
+  const [componentSearchText, setComponentSearchText] = useState("");
   const [ownedOnly, setOwnedOnly] = useState(false);
   const [includeDlc, setIncludeDlc] = useState(true);
 
@@ -49,6 +55,30 @@ function ReverseFusionPage({ ownedPersonas }: ReverseFusionPageProps) {
 
   function selectTargetPersona(personaName: string) {
     setTargetPersonaName(personaName);
+    setComponentSearchText("");
+  }
+
+  function recipeMatchesComponentSearch(recipe: FusionRecipe) {
+    const searchValue = componentSearchText.trim().toLowerCase();
+
+    if (!searchValue) {
+      return true;
+    }
+
+    return (
+      recipe.ingredientA.name.toLowerCase().includes(searchValue) ||
+      recipe.ingredientB.name.toLowerCase().includes(searchValue)
+    );
+  }
+
+  function ingredientMatchesComponentSearch(ingredientName: string) {
+    const searchValue = componentSearchText.trim().toLowerCase();
+
+    if (!searchValue) {
+      return true;
+    }
+
+    return ingredientName.toLowerCase().includes(searchValue);
   }
 
   function getReverseFusionRecipes(targetName: string) {
@@ -102,7 +132,7 @@ function ReverseFusionPage({ ownedPersonas }: ReverseFusionPageProps) {
     ? []
     : getReverseFusionRecipes(targetPersonaName);
 
-  const filteredRecipes = possibleRecipes.filter((recipe) => {
+  const ownedFilteredRecipes = possibleRecipes.filter((recipe) => {
     const matchesOwned =
       !ownedOnly ||
       (ownedPersonas[recipe.ingredientA.name] &&
@@ -111,10 +141,21 @@ function ReverseFusionPage({ ownedPersonas }: ReverseFusionPageProps) {
     return matchesOwned;
   });
 
-  const filteredSpecialFusionIngredients =
+  const filteredRecipes = ownedFilteredRecipes.filter(
+    recipeMatchesComponentSearch
+  );
+
+  const ownedFilteredSpecialFusionIngredients =
     specialFusionIngredients?.filter((ingredientName) => {
       return !ownedOnly || ownedPersonas[ingredientName];
     }) ?? [];
+
+  const filteredSpecialFusionIngredients =
+    ownedFilteredSpecialFusionIngredients.filter(
+      ingredientMatchesComponentSearch
+    );
+
+  const hasComponentSearch = componentSearchText.trim().length > 0;
 
   return (
     <section className="tool-page">
@@ -148,7 +189,15 @@ function ReverseFusionPage({ ownedPersonas }: ReverseFusionPageProps) {
       <div className="reverse-fusion-layout">
         <div className="selector-panel">
           <h3>Target Persona</h3>
-          <p>Selected: {targetPersonaName}</p>
+          <p>
+            Selected:{" "}
+            <PersonaNameButton
+              personaName={targetPersonaName}
+              persona={targetPersona}
+              ownedPersonas={ownedPersonas}
+              toggleOwned={toggleOwned}
+            />
+          </p>
 
           <input
             className="form-control"
@@ -187,7 +236,14 @@ function ReverseFusionPage({ ownedPersonas }: ReverseFusionPageProps) {
         <div className="result-panel">
           {targetPersona && (
             <>
-              <h3>{targetPersona.name}</h3>
+              <h3>
+                <PersonaNameButton
+                  personaName={targetPersona.name}
+                  persona={targetPersona}
+                  ownedPersonas={ownedPersonas}
+                  toggleOwned={toggleOwned}
+                />
+              </h3>
 
               <div className="info-grid">
                 <p>Arcana: {targetPersona.arcana}</p>
@@ -207,11 +263,45 @@ function ReverseFusionPage({ ownedPersonas }: ReverseFusionPageProps) {
             <div className="details-section">
               <h3>Special Fusion Recipe</h3>
 
+              <div className="recipe-filter-row">
+                <input
+                  className="form-control"
+                  type="text"
+                  placeholder="Search component Persona..."
+                  value={componentSearchText}
+                  onChange={(event) =>
+                    setComponentSearchText(event.target.value)
+                  }
+                />
+
+                {hasComponentSearch && (
+                  <button
+                    type="button"
+                    className="secondary-action"
+                    onClick={() => setComponentSearchText("")}
+                  >
+                    Clear
+                  </button>
+                )}
+              </div>
+
+              <p>
+                {hasComponentSearch
+                  ? `${filteredSpecialFusionIngredients.length} of ${ownedFilteredSpecialFusionIngredients.length} components match`
+                  : `${filteredSpecialFusionIngredients.length} components found`}
+              </p>
+
               {filteredSpecialFusionIngredients.length > 0 ? (
                 <div className="recipe-list-scroll">
                   {filteredSpecialFusionIngredients.map((ingredientName) => (
                     <div key={ingredientName} className="recipe-card">
-                      <p>{ingredientName}</p>
+                      <p>
+                        <PersonaNameButton
+                          personaName={ingredientName}
+                          ownedPersonas={ownedPersonas}
+                          toggleOwned={toggleOwned}
+                        />
+                      </p>
                     </div>
                   ))}
                 </div>
@@ -222,7 +312,34 @@ function ReverseFusionPage({ ownedPersonas }: ReverseFusionPageProps) {
           ) : (
             <div className="details-section">
               <h3>Possible Recipes</h3>
-              <p>{filteredRecipes.length} recipes found</p>
+
+              <div className="recipe-filter-row">
+                <input
+                  className="form-control"
+                  type="text"
+                  placeholder="Search component Persona..."
+                  value={componentSearchText}
+                  onChange={(event) =>
+                    setComponentSearchText(event.target.value)
+                  }
+                />
+
+                {hasComponentSearch && (
+                  <button
+                    type="button"
+                    className="secondary-action"
+                    onClick={() => setComponentSearchText("")}
+                  >
+                    Clear
+                  </button>
+                )}
+              </div>
+
+              <p>
+                {hasComponentSearch
+                  ? `${filteredRecipes.length} of ${ownedFilteredRecipes.length} recipes match`
+                  : `${filteredRecipes.length} recipes found`}
+              </p>
 
               {filteredRecipes.length > 0 ? (
                 <div className="recipe-list-scroll">
@@ -232,9 +349,19 @@ function ReverseFusionPage({ ownedPersonas }: ReverseFusionPageProps) {
                       className="recipe-card"
                     >
                       <p>
-                        {recipe.ingredientA.name}
+                        <PersonaNameButton
+                          personaName={recipe.ingredientA.name}
+                          persona={recipe.ingredientA}
+                          ownedPersonas={ownedPersonas}
+                          toggleOwned={toggleOwned}
+                        />
                         {" + "}
-                        {recipe.ingredientB.name}
+                        <PersonaNameButton
+                          personaName={recipe.ingredientB.name}
+                          persona={recipe.ingredientB}
+                          ownedPersonas={ownedPersonas}
+                          toggleOwned={toggleOwned}
+                        />
                       </p>
 
                       <p>

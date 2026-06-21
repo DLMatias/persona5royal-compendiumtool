@@ -1,5 +1,6 @@
 import { useState } from "react";
 import personas from "../data/personas.json";
+import { PersonaNameButton } from "./PersonaPopup";
 import { getFusionResult } from "../utils/fusionLogic";
 import type { Persona } from "../types";
 
@@ -9,11 +10,12 @@ type OwnedPersonas = {
 
 type FusionPageProps = {
   ownedPersonas: OwnedPersonas;
+  toggleOwned: (personaName: string) => void;
 };
 
 const typedPersonas = personas as Persona[];
 
-function FusionPage({ ownedPersonas }: FusionPageProps) {
+function FusionPage({ ownedPersonas, toggleOwned }: FusionPageProps) {
   const [personaAName, setPersonaAName] = useState(typedPersonas[0].name);
   const [personaBName, setPersonaBName] = useState(typedPersonas[1].name);
   const [personaASearchText, setPersonaASearchText] = useState("");
@@ -115,7 +117,15 @@ function FusionPage({ ownedPersonas }: FusionPageProps) {
       <div className="fusion-selector-grid">
         <div className="selector-panel">
           <h3>Persona A</h3>
-          <p>Selected: {personaAName}</p>
+          <p>
+            Selected:{" "}
+            <PersonaNameButton
+              personaName={personaAName}
+              persona={personaA}
+              ownedPersonas={ownedPersonas}
+              toggleOwned={toggleOwned}
+            />
+          </p>
 
           <input
             className="form-control"
@@ -153,7 +163,15 @@ function FusionPage({ ownedPersonas }: FusionPageProps) {
 
         <div className="selector-panel">
           <h3>Persona B</h3>
-          <p>Selected: {personaBName}</p>
+          <p>
+            Selected:{" "}
+            <PersonaNameButton
+              personaName={personaBName}
+              persona={personaB}
+              ownedPersonas={ownedPersonas}
+              toggleOwned={toggleOwned}
+            />
+          </p>
 
           <input
             className="form-control"
@@ -199,7 +217,14 @@ function FusionPage({ ownedPersonas }: FusionPageProps) {
 
         {fusionResult ? (
           <>
-            <h2>{fusionResult.name}</h2>
+            <h2>
+              <PersonaNameButton
+                personaName={fusionResult.name}
+                persona={fusionResult}
+                ownedPersonas={ownedPersonas}
+                toggleOwned={toggleOwned}
+              />
+            </h2>
 
             <div className="info-grid">
               <p>Arcana: {fusionResult.arcana}</p>

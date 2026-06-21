@@ -353,6 +353,18 @@ th {
   box-shadow: 0 0 25px rgba(230, 0, 18, 0.35);
 }
 
+.persona-popup {
+  background: #18181d;
+  border: 1px solid #e60012;
+  border-radius: 10px;
+  padding: 20px;
+  max-height: calc(100vh - 40px);
+  max-width: 900px;
+  width: 100%;
+  overflow-y: auto;
+  box-shadow: 0 0 25px rgba(230, 0, 18, 0.35);
+}
+
 .popup-header {
   display: flex;
   justify-content: space-between;
@@ -380,6 +392,30 @@ th {
 .skill-type-icon.large {
   width: 32px;
   height: 32px;
+}
+
+.persona-link-button {
+  display: inline;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  color: #ff7070;
+  font: inherit;
+  text-align: inherit;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.persona-link-button:hover {
+  color: #ff9a9a;
+}
+
+h2 .persona-link-button,
+h3 .persona-link-button {
+  color: inherit;
+  font-weight: inherit;
 }
 
 /* Skills and Traits Library Pages */
@@ -570,6 +606,12 @@ th {
   margin-bottom: 18px;
 }
 
+.secondary-action {
+  padding: 10px 14px;
+  cursor: pointer;
+  margin-bottom: 10px;
+}
+
 .result-panel {
   background: #111116;
   border: 1px solid #33333b;
@@ -586,6 +628,14 @@ th {
   max-height: 520px;
   overflow-y: auto;
   padding-right: 4px;
+}
+
+.recipe-filter-row {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) auto;
+  gap: 10px;
+  align-items: start;
+  max-width: 520px;
 }
 
 .recipe-card {

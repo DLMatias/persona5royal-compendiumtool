@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import personasData from "../data/personas.json";
 import skillsData from "../data/skills.json";
 import traitsData from "../data/traits.json";
+import { PersonaNameButton } from "./PersonaPopup";
 import {
   canPersonaInheritSkill,
   findShortestBuildPlanToTarget,
@@ -33,6 +34,15 @@ type TraitsData = {
   };
 };
 
+type OwnedPersonas = {
+  [personaName: string]: boolean;
+};
+
+type BuildPlannerPageProps = {
+  ownedPersonas: OwnedPersonas;
+  toggleOwned: (personaName: string) => void;
+};
+
 const personas = personasData as Persona[];
 const skills = skillsData as SkillsData;
 const traits = traitsData as TraitsData;
@@ -41,20 +51,17 @@ function getIconPath(element: string) {
   return `${import.meta.env.BASE_URL}icons/${element.toLowerCase()}.png`;
 }
 
-function formatCarriedSkill(
+function getCarriedSkillSource(
   skillName: string,
   skillSources: SkillLearningSource[]
 ) {
-  const source = skillSources.find((item) => item.skillName === skillName);
-
-  if (!source) {
-    return skillName;
-  }
-
-  return `${skillName} (${source.personaName} Lv ${source.level})`;
+  return skillSources.find((item) => item.skillName === skillName) ?? null;
 }
 
-function BuildPlannerPage() {
+function BuildPlannerPage({
+  ownedPersonas,
+  toggleOwned,
+}: BuildPlannerPageProps) {
   const [targetPersonaName, setTargetPersonaName] = useState("");
   const [targetSearchText, setTargetSearchText] = useState("");
   const [skillSearchText, setSkillSearchText] = useState("");
@@ -221,7 +228,19 @@ function BuildPlannerPage() {
       <div className="build-planner-grid">
         <div className="selector-panel">
           <h3>Target Persona</h3>
-          <p>Selected: {targetPersonaName || "None"}</p>
+          <p>
+            Selected:{" "}
+            {targetPersona ? (
+              <PersonaNameButton
+                personaName={targetPersona.name}
+                persona={targetPersona}
+                ownedPersonas={ownedPersonas}
+                toggleOwned={toggleOwned}
+              />
+            ) : (
+              "None"
+            )}
+          </p>
 
           <input
             className="form-control"
@@ -388,7 +407,14 @@ function BuildPlannerPage() {
 
       {targetPersona && (
         <div className="result-panel">
-          <h3>{targetPersona.name}</h3>
+          <h3>
+            <PersonaNameButton
+              personaName={targetPersona.name}
+              persona={targetPersona}
+              ownedPersonas={ownedPersonas}
+              toggleOwned={toggleOwned}
+            />
+          </h3>
 
           <div className="info-grid">
             <p>Arcana: {targetPersona.arcana}</p>
@@ -419,7 +445,15 @@ function BuildPlannerPage() {
               {shortestBuildPlan.steps.length === 1 ? "step" : "steps"})
             </h4>
 
-            <p>Target: {targetPersonaName}</p>
+            <p>
+              Target:{" "}
+              <PersonaNameButton
+                personaName={targetPersonaName}
+                persona={targetPersona}
+                ownedPersonas={ownedPersonas}
+                toggleOwned={toggleOwned}
+              />
+            </p>
 
             {wantedSkills.length > 0 && (
               <p>Skills: {wantedSkills.join(", ")}</p>
@@ -435,26 +469,77 @@ function BuildPlannerPage() {
                   {step.isSpecialFusion && step.specialIngredients ? (
                     <p>
                       Special Fusion:{" "}
-                      {step.specialIngredients
-                        .map((persona) => persona.name)
-                        .join(" + ")}{" "}
-                      = {step.result.name}
+                      {step.specialIngredients.map((persona, index) => (
+                        <Fragment key={persona.name}>
+                          {index > 0 && " + "}
+                          <PersonaNameButton
+                            personaName={persona.name}
+                            persona={persona}
+                            ownedPersonas={ownedPersonas}
+                            toggleOwned={toggleOwned}
+                          />
+                        </Fragment>
+                      ))}{" "}
+                      ={" "}
+                      <PersonaNameButton
+                        personaName={step.result.name}
+                        persona={step.result}
+                        ownedPersonas={ownedPersonas}
+                        toggleOwned={toggleOwned}
+                      />
                     </p>
                   ) : (
                     <p>
-                      {step.personaA.name} + {step.personaB.name} ={" "}
-                      {step.result.name}
+                      <PersonaNameButton
+                        personaName={step.personaA.name}
+                        persona={step.personaA}
+                        ownedPersonas={ownedPersonas}
+                        toggleOwned={toggleOwned}
+                      />{" "}
+                      +{" "}
+                      <PersonaNameButton
+                        personaName={step.personaB.name}
+                        persona={step.personaB}
+                        ownedPersonas={ownedPersonas}
+                        toggleOwned={toggleOwned}
+                      />{" "}
+                      ={" "}
+                      <PersonaNameButton
+                        personaName={step.result.name}
+                        persona={step.result}
+                        ownedPersonas={ownedPersonas}
+                        toggleOwned={toggleOwned}
+                      />
                     </p>
                   )}
 
                   {step.inheritedSkills.length > 0 && (
                     <p>
                       Skills carried:{" "}
-                      {step.inheritedSkills
-                        .map((skillName) =>
-                          formatCarriedSkill(skillName, step.skillSources)
-                        )
-                        .join(", ")}
+                      {step.inheritedSkills.map((skillName, index) => {
+                        const source = getCarriedSkillSource(
+                          skillName,
+                          step.skillSources
+                        );
+
+                        return (
+                          <Fragment key={skillName}>
+                            {index > 0 && ", "}
+                            {skillName}
+                            {source && (
+                              <>
+                                {" ("}
+                                <PersonaNameButton
+                                  personaName={source.personaName}
+                                  ownedPersonas={ownedPersonas}
+                                  toggleOwned={toggleOwned}
+                                />{" "}
+                                Lv {source.level})
+                              </>
+                            )}
+                          </Fragment>
+                        );
+                      })}
                     </p>
                   )}
 

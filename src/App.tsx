@@ -99,17 +99,31 @@ function App() {
         </div>
       )}
 
-      {activeTab === "Skills" && <SkillsPage />}
-
-      {activeTab === "Traits" && <TraitsPage />}
-
-      {activeTab === "Fusion" && <FusionPage ownedPersonas={ownedPersonas} />}
-
-      {activeTab === "Reverse Fusion" && (
-        <ReverseFusionPage ownedPersonas={ownedPersonas} />
+      {activeTab === "Skills" && (
+        <SkillsPage ownedPersonas={ownedPersonas} toggleOwned={toggleOwned} />
       )}
 
-      {activeTab === "Build Planner" && <BuildPlannerPage />}
+      {activeTab === "Traits" && (
+        <TraitsPage ownedPersonas={ownedPersonas} toggleOwned={toggleOwned} />
+      )}
+
+      {activeTab === "Fusion" && (
+        <FusionPage ownedPersonas={ownedPersonas} toggleOwned={toggleOwned} />
+      )}
+
+      {activeTab === "Reverse Fusion" && (
+        <ReverseFusionPage
+          ownedPersonas={ownedPersonas}
+          toggleOwned={toggleOwned}
+        />
+      )}
+
+      {activeTab === "Build Planner" && (
+        <BuildPlannerPage
+          ownedPersonas={ownedPersonas}
+          toggleOwned={toggleOwned}
+        />
+      )}
     </div>
   );
 }

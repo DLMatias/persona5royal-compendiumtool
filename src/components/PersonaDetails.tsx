@@ -10,6 +10,15 @@ type PersonaDetailsProps = {
   toggleOwned: (personaName: string) => void;
 };
 
+type PersonaEntryContentProps = {
+  persona: Persona;
+  ownedPersonas?: {
+    [personaName: string]: boolean;
+  };
+  toggleOwned?: (personaName: string) => void;
+  title?: string;
+};
+
 type SkillInfo = {
   element: string;
   cost: string;
@@ -56,11 +65,12 @@ function getSkillIconPath(element: string) {
   return `${iconBasePath}${element.toLowerCase()}.png`;
 }
 
-function PersonaDetails({
-  selectedPersona,
+export function PersonaEntryContent({
+  persona,
   ownedPersonas,
   toggleOwned,
-}: PersonaDetailsProps) {
+  title = "Persona Details",
+}: PersonaEntryContentProps) {
   const [selectedSkillName, setSelectedSkillName] = useState<string | null>(
     null
   );
@@ -68,43 +78,45 @@ function PersonaDetails({
   const selectedSkill = selectedSkillName ? skills[selectedSkillName] : null;
 
   return (
-    <section className="details-panel">
+    <>
       <div className="details-header">
         <div>
-          <h2>Persona Details</h2>
-          <h3>{selectedPersona.name}</h3>
+          <h2>{title}</h2>
+          <h3>{persona.name}</h3>
         </div>
 
-        <label className="owned-toggle">
-          <input
-            type="checkbox"
-            checked={!!ownedPersonas[selectedPersona.name]}
-            onChange={() => toggleOwned(selectedPersona.name)}
-          />
-          Owned
-        </label>
+        {ownedPersonas && toggleOwned && (
+          <label className="owned-toggle">
+            <input
+              type="checkbox"
+              checked={!!ownedPersonas[persona.name]}
+              onChange={() => toggleOwned(persona.name)}
+            />
+            Owned
+          </label>
+        )}
       </div>
 
       <div className="info-grid">
-        <p>Arcana: {selectedPersona.arcana}</p>
-        <p>Level: {selectedPersona.level}</p>
-        <p>Trait: {selectedPersona.trait}</p>
-        <p>DLC: {selectedPersona.isDlc ? "Yes" : "No"}</p>
-        <p>DLC Pack: {selectedPersona.dlcPack ?? "None"}</p>
-        <p>Special Fusion: {selectedPersona.specialFusion ? "Yes" : "No"}</p>
-        <p>Treasure Demon: {selectedPersona.rare ? "Yes" : "No"}</p>
-        <p>Inherits: {selectedPersona.inherits}</p>
+        <p>Arcana: {persona.arcana}</p>
+        <p>Level: {persona.level}</p>
+        <p>Trait: {persona.trait}</p>
+        <p>DLC: {persona.isDlc ? "Yes" : "No"}</p>
+        <p>DLC Pack: {persona.dlcPack ?? "None"}</p>
+        <p>Special Fusion: {persona.specialFusion ? "Yes" : "No"}</p>
+        <p>Treasure Demon: {persona.rare ? "Yes" : "No"}</p>
+        <p>Inherits: {persona.inherits}</p>
       </div>
 
       <div className="details-section">
         <h4>Stats</h4>
 
         <div className="info-grid compact">
-          <p>Strength: {selectedPersona.stats.strength}</p>
-          <p>Magic: {selectedPersona.stats.magic}</p>
-          <p>Endurance: {selectedPersona.stats.endurance}</p>
-          <p>Agility: {selectedPersona.stats.agility}</p>
-          <p>Luck: {selectedPersona.stats.luck}</p>
+          <p>Strength: {persona.stats.strength}</p>
+          <p>Magic: {persona.stats.magic}</p>
+          <p>Endurance: {persona.stats.endurance}</p>
+          <p>Agility: {persona.stats.agility}</p>
+          <p>Luck: {persona.stats.luck}</p>
         </div>
       </div>
 
@@ -121,7 +133,7 @@ function PersonaDetails({
                 className="affinity-icon"
               />
 
-              <span>{selectedPersona.affinities[affinity.key]}</span>
+              <span>{persona.affinities[affinity.key]}</span>
             </div>
           ))}
         </div>
@@ -131,7 +143,7 @@ function PersonaDetails({
         <h4>Skills</h4>
 
         <div className="skill-list">
-          {selectedPersona.skills.map((skill, index) => {
+          {persona.skills.map((skill, index) => {
             const skillInfo = skills[skill.name];
             const iconPath = skillInfo
               ? getSkillIconPath(skillInfo.element)
@@ -203,7 +215,7 @@ function PersonaDetails({
       <div className="details-section">
         <h4>Locations</h4>
 
-        {selectedPersona.locations.map((location, index) => (
+        {persona.locations.map((location, index) => (
           <div key={index} className="location-card">
             <p>Method: {location.method}</p>
             <p>Area: {location.area}</p>
@@ -211,6 +223,22 @@ function PersonaDetails({
           </div>
         ))}
       </div>
+    </>
+  );
+}
+
+function PersonaDetails({
+  selectedPersona,
+  ownedPersonas,
+  toggleOwned,
+}: PersonaDetailsProps) {
+  return (
+    <section className="details-panel">
+      <PersonaEntryContent
+        persona={selectedPersona}
+        ownedPersonas={ownedPersonas}
+        toggleOwned={toggleOwned}
+      />
     </section>
   );
 }

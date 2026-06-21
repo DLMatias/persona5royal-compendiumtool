@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import traits from "../data/traits.json";
 import personas from "../data/personas.json";
+import { PersonaNameButton } from "./PersonaPopup";
 import type { Persona } from "../types";
 
 const typedPersonas = personas as Persona[];
@@ -11,10 +12,19 @@ type TraitData = {
   };
 };
 
+type OwnedPersonas = {
+  [personaName: string]: boolean;
+};
+
+type TraitsPageProps = {
+  ownedPersonas: OwnedPersonas;
+  toggleOwned: (personaName: string) => void;
+};
+
 const typedTraits = traits as TraitData;
 const itemsPerPage = 20;
 
-function TraitsPage() {
+function TraitsPage({ ownedPersonas, toggleOwned }: TraitsPageProps) {
   const [searchText, setSearchText] = useState("");
   const [sortOption, setSortOption] = useState("Name A-Z");
   const [currentPage, setCurrentPage] = useState(1);
@@ -131,7 +141,13 @@ function TraitsPage() {
                 {personasWithTrait.length > 0 ? (
                   personasWithTrait.slice(0, 12).map((persona) => (
                     <p key={persona.name}>
-                      {persona.name} ; Level {persona.level} ; {persona.arcana}
+                      <PersonaNameButton
+                        personaName={persona.name}
+                        persona={persona}
+                        ownedPersonas={ownedPersonas}
+                        toggleOwned={toggleOwned}
+                      />{" "}
+                      ; Level {persona.level} ; {persona.arcana}
                       {persona.isDlc ? " ; DLC" : ""}
                     </p>
                   ))
