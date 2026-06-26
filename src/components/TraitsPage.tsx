@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { PersonaNameButton } from "./PersonaPopup";
+import { getIconPath } from "../utils/icons";
 import type { GameData } from "../types";
 
 type OwnedPersonas = {
@@ -113,7 +114,7 @@ function TraitsPage({ gameData, ownedPersonas, toggleOwned }: TraitsPageProps) {
             <article key={traitName} className="library-card">
               <div className="library-card-header">
                 <img
-                  src={`${import.meta.env.BASE_URL}icons/trait.png`}
+                  src={getIconPath("trait")}
                   alt="Trait"
                   title="Trait"
                   className="skill-type-icon large"
