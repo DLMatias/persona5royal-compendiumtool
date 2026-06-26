@@ -1,10 +1,8 @@
 # Persona Compendium Toolkit
 
-Persona Compendium Toolkit is a client-side React app for browsing Persona compendium data, skills, and fusion routes across supported Persona games.
+Persona Compendium Toolkit is a client-side React app for browsing Persona compendium data, skills, fusion routes, and build-planning tools across supported Persona games.
 
-The project began as a Persona 5 Royal compendium and fusion calculator, then expanded to include Persona 3 Reload. It is still a personal portfolio project focused on React, TypeScript, data processing, state management, and browser-based fusion algorithms.
-
-DISCLAIMER: None of this information is verified in game. The app uses existing public data sources and transforms them into local JSON files.
+The project began as a Persona 5 Royal compendium and fusion calculator, then expanded into a multi-game toolkit with support for Persona 5 Royal and Persona 3 Reload. It is a personal portfolio project focused on React, TypeScript, data processing, state management, browser-based fusion algorithms, and game-specific UI design.
 
 ## Supported Games
 
@@ -17,7 +15,8 @@ DISCLAIMER: None of this information is verified in game. The app uses existing 
 
 * Switch between supported games from the app header
 * Keep owned Persona tracking separated per game
-* Show only the tools that make sense for the selected game
+* Show only the tools that apply to the selected game
+* Apply a distinct visual theme for each game section
 
 ### Compendium
 
@@ -32,38 +31,42 @@ DISCLAIMER: None of this information is verified in game. The app uses existing 
 * Browse skills for the selected game
 * Search and filter skills by type
 * View skill descriptions, costs, cards, fusion sources, and learned-by lists
+* Exclude Persona 3 Reload Theurgy skills from the normal skill database
 * Open linked Persona entries from skill source lists
 
 ### Traits Database
 
-* Browse Persona traits where the selected game supports traits
+* Browse Persona traits for games that support traits
 * Search and filter traits
 * View trait descriptions and associated Personas
 
-### Fusion Calculator
+### Fusion Explorer
 
-* Calculate fusion results between two Personas
+* Select one Persona and view every Persona it can help create
+* Include normal and special fusion results
 * Filter by DLC and owned Personas
-* View the resulting Persona entry
+* Open result and component Persona entries directly from the fusion list
 
 ### Reverse Fusion Calculator
 
 * Search for a target Persona
 * View normal and special fusion recipes
 * Filter recipes by DLC, owned Personas, and component Persona name
+* Search within recipe components to check whether a specific Persona can help make the selected target
 
 ### Build Planner
 
-* Plan Persona 5 Royal fusion routes toward selected skills and traits
+* Plan fusion routes toward selected skills and traits where supported
 * Supports player level restrictions and DLC filtering
 * Tracks inherited skill sources through each fusion step
-* Validates route legality during planning
+* Validates route legality using each game's inheritance rules
+* Supports Persona 5 Royal traits and Persona 3 Reload's traitless build flow
 
 ## Technical Highlights
 
 ### Data Processing
 
-The app converts public Persona data into structured JSON files consumed directly by the React application. Persona 5 Royal and Persona 3 Reload data live as separate game profiles so shared UI can render the right compendium, skills, fusion chart, and special recipes.
+The app converts public Persona data into structured JSON files consumed directly by the React application. Persona 5 Royal and Persona 3 Reload data live as separate game profiles so shared UI can render the right compendium, skills, fusion chart, special recipes, affinities, and inheritance behavior.
 
 ### Fusion Logic
 
@@ -71,11 +74,11 @@ Fusion calculations run entirely in the browser. The fusion engine accepts the a
 
 ### Build Planning
 
-The build planner searches for valid Persona 5 Royal fusion paths while considering desired skills, requested traits, player level restrictions, DLC inclusion, and inheritance legality.
+The build planner searches for valid fusion paths while considering desired skills, requested traits when available, player level restrictions, DLC inclusion, special fusions, and game-specific inheritance legality.
 
 ### User Interface
 
-The interface uses React, TypeScript, and CSS, with searchable lists, filters, pagination, icons, scrollable panels, and reusable Persona entry popups.
+The interface uses React, TypeScript, and CSS, with searchable lists, filters, pagination, icons, scrollable panels, reusable Persona entry popups, and separate visual themes for each supported game.
 
 ## Technologies Used
 
@@ -100,7 +103,9 @@ Skill and affinity icons were sourced from:
 
 https://megamitensei.fandom.com/wiki/Category:Persona_5_Icons
 
-All Persona intellectual property belongs to Atlus and Sega.
+https://megatenwiki.com/wiki/Category:Persona_3_Reload_Icons
+
+Data has been transformed for this app and may not perfectly match every in-game edge case.
 
 ## Deployment
 
@@ -117,6 +122,26 @@ https://dlmatias.github.io/persona5royal-compendiumtool/
 Source Code:
 
 https://github.com/DLMatias/persona5royal-compendiumtool
+
+## Local Development
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+Start the development server:
+
+```bash
+npm run dev
+```
+
+Build for production:
+
+```bash
+npm run build
+```
 
 ## Disclaimer
 
